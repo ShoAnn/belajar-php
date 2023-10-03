@@ -14,6 +14,18 @@
     </header>
     <div class="container-fluid row">
         <aside class="col-lg-3">
+            <div class="card">
+                <div class="card-header">Menu</div>
+                <div class="card-body">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="pages/dashboard.php">Dashboard</a>
+                            <a class="nav-link" href="index.php">Home</a>
+                            <a class="nav-link" href="pages/login.php">Login</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </aside>
         <main class="col-lg-9">
             <?php
