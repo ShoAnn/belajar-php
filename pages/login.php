@@ -1,18 +1,38 @@
 <?php
-// Static credential
+// Startsession
+session_start();
+
+// Static credentials
 $validUsername = "user123";
 $validPassword = "password123";
+
+// Check if the user is already logged in
+if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
+  header("Location: welcome.php");
+  exit;
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $enteredUsername = $_POST["username"];
   $enteredPassword = $_POST["password"];
 
-  // Check if the entered credentials match the valid credentials
+  // Check valid credentials
   if ($enteredUsername === $validUsername && $enteredPassword === $validPassword) {
-    header("Location:dashboard.php");
+    // Store user information in sessions
+    $_SESSION["loggedin"] = true;
+    $_SESSION["username"] = $enteredUsername;
+
+    // Redirect > welcome page
+    header("Location: dashboard.php");
   } else {
-    echo "<h2>Login failed. Cek kembali username atau password anda.</h2>";
+    $loginError = "Login failed. Cek kembali username atau password anda";
   }
+}
+?>
+
+<?php
+if (isset($loginError)) {
+  echo "<h2>$loginError</h2>";
 }
 ?>
 
