@@ -6,7 +6,7 @@ session_start();
 $validUsername = "user123";
 $validPassword = "password123";
 
-// Check if the user is already logged in
+// Check user logged in
 if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
   header("Location: welcome.php");
   exit;
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Check valid credentials
   if ($enteredUsername === $validUsername && $enteredPassword === $validPassword) {
-    // Store user information in sessions
+    // Save user information > sessions
     $_SESSION["loggedin"] = true;
     $_SESSION["username"] = $enteredUsername;
 
