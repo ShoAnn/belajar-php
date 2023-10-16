@@ -1,3 +1,5 @@
+<?php include "dbconnection.php" ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,6 +15,7 @@
         <h2 class="bg-dark text-white bg-gradient w100 px-3 py-3">PHP Fundamentals</h2>
     </header>
     <div class="container-fluid row">
+        <h2></h2>
         <aside class="col-lg-3">
             <div class="card">
                 <div class="card-header">Menu</div>
