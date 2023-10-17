@@ -1,4 +1,15 @@
-<?php include "dbconnection.php" ?>
+<?php
+session_start();
+
+
+if (isset($_SESSION["username"])) {
+    header("Location: pages/dashboard.php");
+} else {
+    header("Location: pages/login.php");
+}
+?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -2,32 +2,37 @@
 // Startsession
 session_start();
 
-// Static credentials
-$validUsername = "user123";
-$validPassword = "password123";
-
 // Check user logged in
-if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
-  header("Location: welcome.php");
-  exit;
+if (isset($_SESSION["username"])) {
+  header("Location: dashboard.php");
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Check if form is submitted
+if (isset($_POST['login'])) {
+  // Include database connection
+  require_once "../dbconnection.php";
   $enteredUsername = $_POST["username"];
   $enteredPassword = $_POST["password"];
 
-  // Check valid credentials
-  if ($enteredUsername === $validUsername && $enteredPassword === $validPassword) {
-    // Save user information > sessions
-    $_SESSION["loggedin"] = true;
-    $_SESSION["username"] = $enteredUsername;
+  // Prepare a select statement
+  $sql = "SELECT * FROM user WHERE username = '$enteredUsername' AND password = '$enteredPassword'";
+  $query = $mysqli->query($sql);
+  $result = mysqli_fetch_array($query);
 
-    // Redirect > welcome page
+  if (is_array($result)) {
+    $_SESSION["username"] = $enteredUsername;
+    $_SESSION["password"] = $enteredPassword;
     header("Location: dashboard.php");
   } else {
-    $loginError = "Login failed. Cek kembali username atau password anda";
+    echo "Username atau password salah";
   }
+
+  // Close connection
+  $mysqli->close();
 }
+
+
+
 ?>
 
 <?php
@@ -66,7 +71,7 @@ if (isset($loginError)) {
 
         <form action="" method="post">
           <div class="input-group mb-3">
-            <input type="text" class="form-control" id="username" name="username" required placeholder="Username : user123">
+            <input type="text" class="form-control" id="username" name="username" required placeholder="Username">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-envelope"></span>
@@ -74,7 +79,7 @@ if (isset($loginError)) {
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="password" class="form-control" id="password" name="password" required placeholder="Password : password123">
+            <input type="password" class="form-control" id="password" name="password" required placeholder="Password">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-lock"></span>
@@ -82,7 +87,7 @@ if (isset($loginError)) {
             </div>
           </div>
           <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">Log In</button>
+            <button type="submit" name="login" class="btn btn-primary btn-block">Log In</button>
           </div>
         </form>
         <!-- /.social-auth-links -->
