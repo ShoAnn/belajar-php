@@ -1,3 +1,16 @@
+<?php
+
+session_start();
+if (!isset($_SESSION["username"])) {
+  header("Location: login.php");
+}
+
+require_once "../../dbconfig.php";
+
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,7 +41,12 @@
         <div class="container-fluid">
           <div class="row mb-2">
             <div class="col-sm-6">
-              <h1>Projects</h1>
+              <h1>Products</h1>
+            </div>
+            <div class="col-sm-3">
+              <a href="../pages/product-add.php"" class=" btn btn-success py-2 px-3">
+                Tambah Produk
+              </a>
             </div>
           </div>
         </div><!-- /.container-fluid -->
@@ -86,7 +104,6 @@
               <tbody>
                 <?php
 
-                require_once "../../dbconfig.php";
                 $query = "SELECT * FROM products";
                 $result = mysqli_query($mysqli, $query);
                 $i = 1;
@@ -105,7 +122,7 @@
                     echo "<td>" . $row['image'] . "</td>";
                     echo "<td>";
                     echo "<a href='product-edit.php?id=" . $row['product_id'] . "' title='Update Record' data-toggle='tooltip'><span class='fas fa-edit p-2'></span></a>";
-                    echo "<a href='product-delete.php?id=" . $row['product_id'] . "' title='Delete Record' data-toggle='tooltip'><span class='fas fa-trash p-2'></span></a>";
+                    echo "<a href='javascript:void(0);' onclick='confirmDelete(" . $row['product_id'] . ")' title='Delete Record' data-toggle='tooltip'><span class='fas fa-trash p-2'></span></a>";
                     echo "</td>";
                     echo "</tr>";
                     $i++;
@@ -146,13 +163,22 @@
   <!-- ./wrapper -->
 
   <!-- jQuery -->
-  <script src="../../plugins/jquery/jquery.min.js"></script>
+  <script src="../plugins/jquery/jquery.min.js"></script>
   <!-- Bootstrap 4 -->
-  <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <!-- AdminLTE App -->
-  <script src="../../dist/js/adminlte.min.js"></script>
+  <script src="../dist/js/adminlte.min.js"></script>
   <!-- AdminLTE for demo purposes -->
-  <script src="../../dist/js/demo.js"></script>
+  <script src="../dist/js/demo.js"></script>
+  <script type="text/javascript">
+    function confirmDelete(id) {
+      if (confirm("Are you sure you want to delete this item?")) {
+        window.location = "product-delete.php?id=" + id;
+      } else {
+        // If the user clicks "Cancel," do nothing
+      }
+    }
+  </script>
 </body>
 
 </html>
