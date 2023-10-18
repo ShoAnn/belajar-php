@@ -59,8 +59,8 @@ $row = mysqli_fetch_assoc($result);
 <body class="hold-transition sidebar-mini">
   <!-- Site wrapper -->
   <div class="wrapper">
-    <?php include "../pages/navbar.php" ?>
-    <?php include "../pages/sidebar.php" ?>
+    <?php include "../../navbar.php" ?>
+    <?php include "../../sidebar.php" ?>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
