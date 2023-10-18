@@ -10,12 +10,12 @@ if (isset($_SESSION["username"])) {
 // Check if form is submitted
 if (isset($_POST['login'])) {
   // Include database connection
-  require_once "../dbconnection.php";
+  require_once "../dbconfig.php";
   $enteredUsername = $_POST["username"];
   $enteredPassword = $_POST["password"];
 
   // Prepare a select statement
-  $sql = "SELECT * FROM user WHERE username = '$enteredUsername' AND password = '$enteredPassword'";
+  $sql = "SELECT * FROM users WHERE username = '$enteredUsername' AND password = '$enteredPassword'";
   $query = $mysqli->query($sql);
   $result = mysqli_fetch_array($query);
 

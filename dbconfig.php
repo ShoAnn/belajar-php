@@ -2,7 +2,7 @@
 $hostname = "127.0.0.1";
 $username = "root";
 $password = "";
-$database = "online_shop";
+$database = "shop";
 
 $mysqli = new mysqli($hostname, $username, $password, $database);
 
