@@ -7,6 +7,10 @@ if (!isset($_SESSION["username"])) {
 
 require_once "../../dbconfig.php";
 
+
+
+
+
 ?>
 
 
@@ -31,8 +35,8 @@ require_once "../../dbconfig.php";
   <!-- Site wrapper -->
   <div class="wrapper">
 
-    <?php include "../pages/navbar.php" ?>
-    <?php include "../pages/sidebar.php" ?>
+    <?php include "navbar.php" ?>
+    <?php include "sidebar.php" ?>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -44,7 +48,7 @@ require_once "../../dbconfig.php";
               <h1>Products</h1>
             </div>
             <div class="col-sm-3">
-              <a href="../pages/product-add.php"" class=" btn btn-success py-2 px-3">
+              <a href="product-add.php"" class=" btn btn-success py-2 px-3">
                 Tambah Produk
               </a>
             </div>
@@ -63,7 +67,55 @@ require_once "../../dbconfig.php";
 
 
           <div class="card-body p-0">
-            <table class="table table-striped projects">
+            <form id="search-form">
+              <div class="form-group row mx-1">
+                <input type="text" id="search-input" class="form-control col-lg-9" placeholder="Search...">
+                <button type="submit" class="form-control col-lg-3 bg-primary">Search</button>
+              </div>
+            </form>
+            <div id="search-results" style="display: none;">
+              <table class="table table-striped projects search">
+                <thead>
+                  <tr>
+                    <th>
+                      #
+                    </th>
+                    <th>
+                      Product id
+                    </th>
+                    <th>
+                      Product Name
+                    </th>
+                    <th>
+                      Category id
+                    </th>
+                    <th>
+                      Code
+                    </th>
+                    <th>
+                      Description
+                    </th>
+                    <th>
+                      Price
+                    </th>
+                    <th>
+                      Unit
+                    </th>
+                    <th>
+                      Stock
+                    </th>
+                    <th>
+                      Image
+                    </th>
+                    <th>
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+
+            <table class="table table-striped projects listprod">
               <thead>
                 <tr>
                   <th>
@@ -178,6 +230,56 @@ require_once "../../dbconfig.php";
         // If the user clicks "Cancel," do nothing
       }
     }
+
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const searchInput = document.getElementById('search-input').value;
+
+      fetch('search.php', {
+          method: 'POST',
+          body: new URLSearchParams({
+            searchQuery: searchInput
+          }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          const searchResults = document.getElementById('search-results');
+          searchResults.style.display = 'block';
+
+          const listprod = document.querySelector('.listprod');
+          listprod.style.display = 'none';
+
+          // get the search results div and empty it out if there are any elements
+          const searchTable = document.querySelector('.search');
+          let childNodes = searchTable.childNodes;
+          let childNodesLength = childNodes.length;
+          for (let i = childNodes.length - 1; i >= 0; i--) {
+            searchTable.removeChild(childNodes[i]);
+          }
+          data.forEach(result => {
+            let i = 1;
+            const resultData = document.createElement('tr');
+            resultData.innerHTML = `
+                      <td>${i}</td>
+                      <td>${result.product_id}</td>
+                      <td>${result.product_name}</td>
+                      <td>${result.category_id}</td>
+                      <td>${result.product_code}</td>
+                      <td>${result.description}</td>
+                      <td>${result.price}</td>
+                      <td>${result.unit}</td>
+                      <td>${result.stock}</td>
+                      <td>${result.image}</td>
+                      <td>
+                      <a href='product-edit.php?id=${result.product_id}' title='Update Record' data-toggle='tooltip'><span class='fas fa-edit p-2'></span></a>
+                      <a href='javascript:void(0);' onclick='confirmDelete(${result.product_id})' title='Delete Record' data-toggle='tooltip'><span class='fas fa-trash p-2'></span></a>
+                      </td>
+                      `;
+            i++;
+            searchTable.appendChild(resultData);
+          })
+        });
+    });
   </script>
 </body>
 
