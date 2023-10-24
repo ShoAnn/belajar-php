@@ -73,94 +73,44 @@ require_once "../../dbconfig.php";
                 <button type="submit" class="form-control col-lg-3 bg-primary">Search</button>
               </div>
             </form>
-            <div id="search-results" style="display: none;">
-              <table class="table table-striped projects search">
-                <thead>
-                  <tr>
-                    <th>
-                      #
-                    </th>
-                    <th>
-                      Product id
-                    </th>
-                    <th>
-                      Product Name
-                    </th>
-                    <th>
-                      Category id
-                    </th>
-                    <th>
-                      Code
-                    </th>
-                    <th>
-                      Description
-                    </th>
-                    <th>
-                      Price
-                    </th>
-                    <th>
-                      Unit
-                    </th>
-                    <th>
-                      Stock
-                    </th>
-                    <th>
-                      Image
-                    </th>
-                    <th>
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-              </table>
-            </div>
 
-            <table class="table table-striped projects listprod">
+
+            <table class="table table-striped projects">
               <thead>
                 <tr>
-                  <th>
-                    #
-                  </th>
-                  <th>
-                    Product id
-                  </th>
-                  <th>
-                    Product Name
-                  </th>
-                  <th>
-                    Category id
-                  </th>
-                  <th>
-                    Code
-                  </th>
-                  <th>
-                    Description
-                  </th>
-                  <th>
-                    Price
-                  </th>
-                  <th>
-                    Unit
-                  </th>
-                  <th>
-                    Stock
-                  </th>
-                  <th>
-                    Image
-                  </th>
-                  <th>
-                    Action
-                  </th>
+                  <th>#</th>
+                  <th>Product id</th>
+                  <th>Product Name</th>
+                  <th>Category id</th>
+                  <th>Code</th>
+                  <th>Description</th>
+                  <th>Price</th>
+                  <th>Unit</th>
+                  <th>Stock</th>
+                  <th>Image</th>
+                  <th>Action</th>
                 </tr>
               </thead>
-              <tbody>
+
+              <div id="search-results" style="display: none;">
+                <tbody class="search">
+                </tbody>
+              </div>
+
+              <tbody class="listprod">
                 <?php
 
-                $query = "SELECT * FROM products";
-                $result = mysqli_query($mysqli, $query);
+                $query_total_record = "SELECT * FROM products";
+                $result = mysqli_query($mysqli, $query_total_record);
+
+                $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+                $rowPerPage = 5;
+                $startIndex = ($page - 1) * $rowPerPage;
+                $query_limited = "SELECT * FROM products LIMIT $startIndex, $rowPerPage";
+                $result_limited = mysqli_query($mysqli, $query_limited);
                 $i = 1;
-                if (mysqli_num_rows($result) > 0) {
-                  while ($row = mysqli_fetch_array($result)) {
+                if (mysqli_num_rows($result_limited) > 0) {
+                  while ($row = mysqli_fetch_array($result_limited)) {
                     echo "<tr>";
                     echo "<td>" . $i . "</td>";
                     echo "<td>" . $row['product_id'] . "</td>";
@@ -189,6 +139,21 @@ require_once "../../dbconfig.php";
                 ?>
               </tbody>
             </table>
+            <div class="card-footer">
+              <ol class="pagination">
+
+                <?php
+                $query_total_record = "SELECT * FROM products";
+                $result = mysqli_query($mysqli, $query_total_record);
+                $total_records = mysqli_num_rows($result);
+                $total_pages = ceil($total_records / $rowPerPage);
+                for ($i = 1; $i <= $total_pages; $i++) {
+                  echo "<li class='page-item'><a class='page-link' href='product-listing.php?page=" . $i . "'>" . $i . "</a></li>";
+                }
+                ?>
+
+              </ol>
+            </div>
           </div>
           <!-- /.card-body -->
         </div>
@@ -231,6 +196,7 @@ require_once "../../dbconfig.php";
       }
     }
 
+    // search
     document.getElementById('search-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const searchInput = document.getElementById('search-input').value;
@@ -280,6 +246,21 @@ require_once "../../dbconfig.php";
           })
         });
     });
+
+    // end search
+    // Create a URLSearchParams object from the current URL
+    const searchParams = new URLSearchParams(window.location.search);
+
+    // Get specific parameters
+    const page = searchParams.get('page') || '1';
+    const pageContainer = document.querySelector('.pagination');
+    const nthpage = pageContainer.children[parseInt(page) - 1];
+    nthpage.classList.add('active');
+    // pagination
+
+    const dataPerPage = 5;
+    let currentPage = 1;
+    // end pagination
   </script>
 </body>
 
