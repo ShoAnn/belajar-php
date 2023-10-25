@@ -158,6 +158,112 @@ require_once "../../dbconfig.php";
           <!-- /.card-body -->
         </div>
         <!-- /.card -->
+        <!-- categories box -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <h4>Produk Berdasarkan Kategori</h4>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="card col-md-4">
+                <div class="card-header">
+                  <h4 class="card-title">Sports</h4>
+                </div>
+                <div class="card-body">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Product ID</th>
+                        <th>Product Name</th>
+                      </tr>
+                    </thead>
+                    <?php
+                    $query_view_sports = "SELECT * FROM category_sports";
+                    $result_sports = mysqli_query($mysqli, $query_view_sports);
+                    if (mysqli_num_rows($result_sports) > 0) {
+                      while ($row_sports = mysqli_fetch_array($result_sports)) {
+                        echo "<tr>";
+                        echo "<td>" . $row_sports['product_id'] . "</td>";
+                        echo "<td>" . $row_sports['product_name'] . "</td>";
+                        echo "</tr>";
+                      };
+                      echo "<tr>";
+                      echo "<td><strong>Total</strong></td>";
+                      echo "<td>" . mysqli_num_rows($result_sports) . "</td>";
+                      echo "</tr>";
+                    };
+                    ?>
+                  </table>
+                </div>
+              </div>
+              <div class="card col-md-4">
+                <div class="card-header">
+                  <h4 class="card-title">Daily</h4>
+                </div>
+                <div class="card-body">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Product ID</th>
+                        <th>Product Name</th>
+                      </tr>
+                    </thead>
+                    <?php
+                    $query_view_daily = "SELECT * FROM category_daily";
+                    $result_daily = mysqli_query($mysqli, $query_view_daily);
+                    if (mysqli_num_rows($result_daily) > 0) {
+                      while ($row_sports = mysqli_fetch_array($result_daily)) {
+                        echo "<tr>";
+                        echo "<td>" . $row_sports['product_id'] . "</td>";
+                        echo "<td>" . $row_sports['product_name'] . "</td>";
+                        echo "</tr>";
+                      };
+                      echo "<tr>";
+                      echo "<td><strong>Total</strong></td>";
+                      echo "<td>" . mysqli_num_rows($result_daily) . "</td>";
+                      echo "</tr>";
+                    };
+                    ?>
+                  </table>
+                </div>
+              </div>
+              <div class="card col-md-4">
+                <div class="card-header">
+                  <h4 class="card-title">Accessories</h4>
+                </div>
+                <div class="card-body">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Product ID</th>
+                        <th>Product Name</th>
+                      </tr>
+                    </thead>
+                    <?php
+                    $query_view_accessories = "SELECT * FROM category_accessories";
+                    $result_accessories = mysqli_query($mysqli, $query_view_accessories);
+                    if (mysqli_num_rows($result_accessories) > 0) {
+                      while ($row_sports = mysqli_fetch_array($result_accessories)) {
+                        echo "<tr>";
+                        echo "<td>" . $row_sports['product_id'] . "</td>";
+                        echo "<td>" . $row_sports['product_name'] . "</td>";
+                        echo "</tr>";
+                      };
+                      echo "<tr>";
+                      echo "<td><strong>Total</strong></td>";
+                      echo "<td>" . mysqli_num_rows($result_accessories) . "</td>";
+                      echo "</tr>";
+                    };
+                    ?>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /.card -->
 
       </section>
       <!-- /.content -->
