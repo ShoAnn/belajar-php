@@ -248,6 +248,8 @@ require_once "../../dbconfig.php";
     });
 
     // end search
+
+    // pagination
     // Create a URLSearchParams object from the current URL
     const searchParams = new URLSearchParams(window.location.search);
 
@@ -256,7 +258,6 @@ require_once "../../dbconfig.php";
     const pageContainer = document.querySelector('.pagination');
     const nthpage = pageContainer.children[parseInt(page) - 1];
     nthpage.classList.add('active');
-    // pagination
 
     const dataPerPage = 5;
     let currentPage = 1;

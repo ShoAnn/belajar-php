@@ -27,6 +27,8 @@ if (isset($_POST['add'])) {
   }
 }
 
+$query_category = "SELECT * FROM product_categories";
+$query_category_result = mysqli_query($mysqli, $query_category);
 ?>
 
 
@@ -97,8 +99,17 @@ if (isset($_POST['add'])) {
                     <input class="form-control" type="text" name="product_name">
                   </div>
                   <div class="form-group">
-                    <label for="category_id">Category ID:</label>
-                    <input class="form-control" type="text" name="category_id">
+                    <label for="category_id">Category</label>
+                    <select name="category_id" id="" class="form-control">
+                      <?php
+
+                      if (mysqli_num_rows($query_category_result) > 0) {
+                        while ($category = mysqli_fetch_array($query_category_result)) {
+                          echo "<option  value='" . $category['id'] . "'>" . $category['category_name'] . "</option>";
+                        };
+                      };
+                      ?>
+                    </select>
                   </div>
                   <div class="form-group">
                     <label for="product_code">Code:</label>

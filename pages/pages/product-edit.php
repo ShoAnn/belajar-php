@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   // Update the data in the database
   $sql = "UPDATE products SET product_name='$product_name', category_id='$category_id', product_code='$code', description='$description', price='$price', unit='$unit', stock='$stock', image='$image' WHERE product_id='$product_id'";
   if (mysqli_query($mysqli, $sql)) {
-    echo "Record updated successfully";
+    header("Location: product-listing.php");
   } else {
     echo "Error updating record: " . mysqli_error($conn);
   }
@@ -37,6 +37,8 @@ $sql = "SELECT * FROM products WHERE product_id='$product_id'";
 $result = mysqli_query($mysqli, $sql);
 $row = mysqli_fetch_assoc($result);
 
+$query_category = "SELECT * FROM product_categories";
+$query_category_result = mysqli_query($mysqli, $query_category);
 
 ?>
 
@@ -103,8 +105,20 @@ $row = mysqli_fetch_assoc($result);
                     <input class="form-control" type="text" name="product_name" value="<?php echo $row['product_name']; ?>">
                   </div>
                   <div class="form-group">
-                    <label for="category_id">Category ID:</label>
-                    <input class="form-control" type="text" name="category_id" value="<?php echo $row['category_id']; ?>">
+                    <label for="category_id">Category</label>
+                    <select name="category_id" class="form-control">
+                      <?php
+                      if (mysqli_num_rows($query_category_result) > 0) {
+                        while ($category = mysqli_fetch_array($query_category_result)) {
+                          if ($category['id'] == $row['category_id']) {
+                            echo "<option  value='" . $category['id'] . "' selected>" . $category['category_name'] . "</option>";
+                          } else {
+                            echo "<option  value='" . $category['id'] . "'>" . $category['category_name'] . "</option>";
+                          }
+                        };
+                      };
+                      ?>
+                    </select>
                   </div>
                   <div class="form-group">
                     <label for="product_code">Code:</label>
