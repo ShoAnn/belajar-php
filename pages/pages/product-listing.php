@@ -121,7 +121,15 @@ require_once "../../dbconfig.php";
                     echo "<td>" . $row['price'] . "</td>";
                     echo "<td>" . $row['unit'] . "</td>";
                     echo "<td>" . $row['stock'] . "</td>";
-                    echo "<td>" . $row['image'] . "</td>";
+                    echo "<td>";
+                    $all_img_path = str_replace(array('[', ']', '"'), '', $row['image']);
+                    $img_paths = explode(",", $all_img_path);
+                    if (is_array($img_paths)) {
+                      foreach ($img_paths as $img_path) {
+                        echo "<img class='img-thumbnail' src='" . $img_path . "' alt=''>";
+                      };
+                    };
+                    echo "</td>";
                     echo "<td>";
                     echo "<a href='product-edit.php?id=" . $row['product_id'] . "' title='Update Record' data-toggle='tooltip'><span class='fas fa-edit p-2'></span></a>";
                     echo "<a href='javascript:void(0);' onclick='confirmDelete(" . $row['product_id'] . ")' title='Delete Record' data-toggle='tooltip'><span class='fas fa-trash p-2'></span></a>";

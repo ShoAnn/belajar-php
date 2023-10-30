@@ -16,19 +16,50 @@ if (isset($_POST['add'])) {
   $price = $_POST["price"];
   $unit = $_POST["unit"];
   $stock = $_POST["stock"];
-  $image = $_POST["image"];
 
-  // Add product ke database
-  $sql = "INSERT INTO products (product_name, category_id, product_code, description, price, unit, stock, image) VALUES ('$product_name', '$category_id', '$code', '$description', '$price', '$unit', '$stock', '$image')";
-  if (mysqli_query($mysqli, $sql)) {
-    echo "<div class='alert alert-success mb-0'> Added successfully </div>";
+  // Get the uploaded file details
+  // Check if files were uploaded
+  $filePaths = [];
+  if (!empty($_FILES['upload']['name'][0])) {
+    $uploadDir = "../../uploads/"; // Directory to store uploaded files
+
+    if (!file_exists($uploadDir)) {
+      mkdir($uploadDir, 0777, true);
+    }
+
+    // Loop through the uploaded files
+    foreach ($_FILES['upload']['name'] as $key => $filename) {
+      $tempFile = $_FILES['upload']['tmp_name'][$key];
+      $targetFile = $uploadDir . basename($filename);
+
+      // Move the uploaded file to the desired directory
+      if (move_uploaded_file($tempFile, $targetFile)) {
+        $filePaths[] = $targetFile;
+      } else {
+        echo "Error uploading file " . $filename;
+      }
+    }
+  }
+
+  // Convert the file paths to JSON
+  $jsonFilePaths = json_encode($filePaths);
+  var_dump($jsonFilePaths);
+
+  // Store the JSON data in the database
+  $sql = "INSERT INTO products (product_name, category_id, product_code, description, price, unit, stock, image) VALUES ('$product_name', '$category_id', '$code', '$description', '$price', '$unit', '$stock', '$jsonFilePaths')";
+  $result_image = mysqli_query($mysqli, $sql);
+
+  if ($result_image) {
+    echo "Files uploaded and paths saved to the database.";
   } else {
-    echo "Error updating record: " . mysqli_error($conn);
+    echo "Error: " . $mysqli->error;
   }
 }
 
 $query_category = "SELECT * FROM product_categories";
 $query_category_result = mysqli_query($mysqli, $query_category);
+
+
 ?>
 
 
@@ -78,7 +109,7 @@ $query_category_result = mysqli_query($mysqli, $query_category);
 
       <!-- Main content -->
       <section class="content">
-        <form method="post" action="">
+        <form method="post" action="" enctype="multipart/form-data">
           <div class="row">
             <div class="col-md-6">
               <!-- card -->
@@ -150,9 +181,9 @@ $query_category_result = mysqli_query($mysqli, $query_category);
                   </div>
                   <div class="form-group">
                     <label for="image">Image:</label>
-                    <input class="form-control" type="text" name="image">
+                    <input class="form-control" type="file" name="upload[]" multiple="multiple">
                   </div>
-                  <div class="form-group">
+                  <div class=" form-group">
                     <input class="form-control btn btn-success" name="add" type="submit" value="Tambah product">
                   </div>
                 </div>

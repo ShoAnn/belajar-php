@@ -55,6 +55,116 @@ $result_vendor = mysqli_num_rows($query_vendor);
           <a href="logout.php" class="nav-link">logout</a>
         </li>
       </ul>
+      <!-- right nav -->
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <?php
+          function today()
+          {
+            $day = date("D");
+
+            switch ($day) {
+              case 'Sun':
+                $today = "Minggu";
+                break;
+
+              case 'Mon':
+                $today = "Senin";
+                break;
+
+              case 'Tue':
+                $today = "Selasa";
+                break;
+
+              case 'Wed':
+                $today = "Rabu";
+                break;
+
+              case 'Thu':
+                $today = "Kamis";
+                break;
+
+              case 'Fri':
+                $today = "Jumat";
+                break;
+
+              case 'Sat':
+                $today = "Sabtu";
+                break;
+
+              default:
+                $today = "invalid";
+                break;
+            };
+
+            return "<b>" . $today . "</b>";
+          };
+
+          function thisMonth()
+          {
+            $month = date('m');
+
+            switch ($month) {
+              case '01':
+                $monthName = "Januari";
+                break;
+
+              case '02':
+                $monthName = "Februari";
+                break;
+
+              case '03':
+                $monthName = "Maret";
+                break;
+
+              case '04':
+                $monthName = "April";
+                break;
+
+              case '05':
+                $monthName = "Mei";
+                break;
+
+              case '06':
+                $monthName = "Juni";
+                break;
+
+              case '07':
+                $monthName = "Juli";
+                break;
+
+              case '08':
+                $monthName = "Agustus";
+                break;
+
+              case '09':
+                $monthName = "September";
+                break;
+
+              case '10':
+                $monthName = "Oktober";
+                break;
+
+              case '11':
+                $monthName = "November";
+                break;
+
+              case '12':
+                $monthName = "Desember";
+                break;
+
+              default:
+                $monthName = "invalid";
+                break;
+            };
+
+            return "<span>" . $monthName . "</span>";
+          };
+
+          echo today() . ", " . date('d ') . thisMonth() . " " . date('Y') . " " . date('H:i:s');
+          ?>
+        </li>
+      </ul>
 
     </nav>
     <!-- /.navbar -->
