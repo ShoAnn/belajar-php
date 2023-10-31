@@ -42,9 +42,6 @@ if (isset($_POST['register'])) {
   $sql_register = "INSERT INTO users (name, email, phone_number, username, password, group_id) VALUES ('$registerName', '$registerEmail', '$registerPhone', '$registerPhone', '$registerPassword', $groupId)";
   $query_register = $mysqli->query($sql_register);
   if ($query_register) {
-    $_SESSION["username"] = $registerPhone;
-    $_SESSION["password"] = $registerPassword;
-    header("Location: dashboard.php");
     echo "<div class='alert alert-success' role='alert'>Berhasil register</div>";
   } else {
     echo "Gagal register";
