@@ -160,8 +160,8 @@ $result_vendor = mysqli_num_rows($query_vendor);
 
             return "<span>" . $monthName . "</span>";
           };
-
-          echo today() . ", " . date('d ') . thisMonth() . " " . date('Y') . " " . date('H:i:s');
+          date_default_timezone_set('Asia/Jakarta');
+          echo today() . ", " . date('d ') . thisMonth() . " " . date('Y') . " [" . date('H:i:s') . "]";
           ?>
         </li>
       </ul>

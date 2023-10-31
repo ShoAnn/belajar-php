@@ -31,11 +31,28 @@ if (isset($_POST['login'])) {
   $mysqli->close();
 }
 
+if (isset($_POST['register'])) {
+  require_once "../dbconfig.php";
+  $registerName = $_POST["register_name"];
+  $registerEmail = $_POST["register_email"];
+  $registerPhone = $_POST["register_phone"];
+  $registerPassword = $_POST["register_password"];
+  $groupId = 3;
 
+  $sql_register = "INSERT INTO users (name, email, phone_number, username, password, group_id) VALUES ('$registerName', '$registerEmail', '$registerPhone', '$registerPhone', '$registerPassword', $groupId)";
+  $query_register = $mysqli->query($sql_register);
+  if ($query_register) {
+    $_SESSION["username"] = $registerPhone;
+    $_SESSION["password"] = $registerPassword;
+    header("Location: dashboard.php");
+    echo "<div class='alert alert-success' role='alert'>Berhasil register</div>";
+  } else {
+    echo "Gagal register";
+  }
+  // Close connection
+  $mysqli->close();
+}
 
-?>
-
-<?php
 if (isset($loginError)) {
   echo "<h2>$loginError</h2>";
 }
@@ -86,8 +103,11 @@ if (isset($loginError)) {
               </div>
             </div>
           </div>
-          <div class="col-4">
+          <div class="col">
             <button type="submit" name="login" class="btn btn-primary btn-block">Log In</button>
+            <button type="button" class="btn btn-block btn-outline-success" data-toggle="modal" data-target="#modalReg">
+              <b>Register Admin</b>
+            </button>
           </div>
         </form>
         <!-- /.social-auth-links -->
@@ -97,6 +117,47 @@ if (isset($loginError)) {
     <!-- /.card -->
   </div>
   <!-- /.login-box -->
+  <!-- modal register -->
+
+  <div class="modal fade" id="modalReg" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Register</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <form action="" method="POST">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="register_name" class="form-label">Nama</label>
+              <input type="text" name="register_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="register_email" class="form-label">Email</label>
+              <input type="text" name="register_email" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="register_phone" class="form-label">Nomor HP</label>
+              <input type="text" name="register_phone" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="register_password" class="form-label">Password</label>
+              <input type="text" name="register_password" class="form-control" required>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" name="register" class="btn btn-primary">Register Admin</button>
+          </div>
+        </form>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- end modal register -->
 
   <!-- jQuery -->
   <script src="./plugins/jquery/jquery.min.js"></script>
@@ -104,6 +165,7 @@ if (isset($loginError)) {
   <script src="./plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <!-- AdminLTE App -->
   <script src="./dist/js/adminlte.min.js"></script>
+  <script src="../../plugins/toastr/toastr.min.js"></script>
 </body>
 
 </html>
