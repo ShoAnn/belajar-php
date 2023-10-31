@@ -85,7 +85,7 @@ if (isset($loginError)) {
 
         <form action="" method="post">
           <div class="input-group mb-3">
-            <input type="text" class="form-control" id="username" name="username" required placeholder="Username">
+            <input type="text" class="form-control" id="username" name="username" required placeholder="Nomor HP">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-envelope"></span>
@@ -145,7 +145,6 @@ if (isset($loginError)) {
             </div>
           </div>
           <div class="modal-footer justify-content-between">
-            <button class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" name="register" class="btn btn-primary">Register Admin</button>
           </div>
         </form>
