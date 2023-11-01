@@ -1,11 +1,15 @@
 <?php
+
 // Startsession
 session_start();
+
 
 // Check user logged in
 if (isset($_SESSION["username"])) {
   header("Location: dashboard.php");
-}
+};
+
+
 
 // Check if form is submitted
 if (isset($_POST['login'])) {
@@ -32,22 +36,22 @@ if (isset($_POST['login'])) {
 }
 
 if (isset($_POST['register'])) {
-  require_once "../dbconfig.php";
-  $registerName = $_POST["register_name"];
-  $registerEmail = $_POST["register_email"];
-  $registerPhone = $_POST["register_phone"];
-  $registerPassword = $_POST["register_password"];
-  $groupId = 3;
+  require_once "../User.php";
+  $name = $_POST["register_name"];
+  $phone = $_POST["register_phone"];
+  $email = $_POST["register_email"];
+  $username = $_POST["register_phone"];
+  $password = $_POST["register_password"];
+  $group = 3;
 
-  $sql_register = "INSERT INTO users (name, email, phone_number, username, password, group_id) VALUES ('$registerName', '$registerEmail', '$registerPhone', '$registerPhone', '$registerPassword', $groupId)";
-  $query_register = $mysqli->query($sql_register);
-  if ($query_register) {
-    echo "<div class='alert alert-success' role='alert'>Berhasil register</div>";
+  $user = new User($name, $phone, $email, $username, $password, $group);
+  $result = $user->register();
+
+  if ($result) {
+    echo "<div class='alert alert-primary'>Registration successful!</div>";
   } else {
-    echo "Gagal register";
+    echo "Registration failed. Please try again.";
   }
-  // Close connection
-  $mysqli->close();
 }
 
 if (isset($loginError)) {
