@@ -1,8 +1,5 @@
 <?php
-
-// Startsession
-session_start();
-
+include "../User.php";
 
 // Check user logged in
 if (isset($_SESSION["username"])) {
@@ -13,27 +10,21 @@ if (isset($_SESSION["username"])) {
 
 // Check if form is submitted
 if (isset($_POST['login'])) {
-  // Include database connection
-  require_once "../dbconfig.php";
-  $enteredUsername = $_POST["username"];
-  $enteredPassword = $_POST["password"];
+  $loginUsername = $_POST["username"];
+  $loginPassword = $_POST["password"];
 
   // Prepare a select statement
-  $sql = "SELECT * FROM users WHERE username = '$enteredUsername' AND password = '$enteredPassword'";
-  $query = $mysqli->query($sql);
-  $result = mysqli_fetch_array($query);
+  $user = new User;
+  $loggedIn = $user->login($loginUsername, $loginPassword);
 
-  if (is_array($result)) {
-    $_SESSION["username"] = $enteredUsername;
-    $_SESSION["password"] = $enteredPassword;
+  if ($loggedIn) {
+    // Redirect to a secure page
     header("Location: dashboard.php");
+    exit();
   } else {
-    echo "Username atau password salah";
+    echo "Login failed. Please try again.";
   }
-
-  // Close connection
-  $mysqli->close();
-}
+};
 
 if (isset($_POST['register'])) {
   require_once "../User.php";
@@ -44,19 +35,15 @@ if (isset($_POST['register'])) {
   $password = $_POST["register_password"];
   $group = 3;
 
-  $user = new User($name, $phone, $email, $username, $password, $group);
-  $result = $user->register();
+  $user = new User;
+  $result = $user->register($name, $phone, $email, $group, $username, $password);
 
   if ($result) {
     echo "<div class='alert alert-primary'>Registration successful!</div>";
   } else {
     echo "Registration failed. Please try again.";
   }
-}
-
-if (isset($loginError)) {
-  echo "<h2>$loginError</h2>";
-}
+};
 ?>
 
 <!DOCTYPE html>
