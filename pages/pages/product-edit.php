@@ -5,9 +5,10 @@ if (!isset($_SESSION["username"])) {
   header("Location: login.php");
 }
 
+require_once "../../dbconfig.php";
+require "../../Product.php";
 
 // Check if the form has been submitted
-require_once "../../dbconfig.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   // Get the form data
   $product_id = $_POST["product_id"];
@@ -33,9 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $product_id = $_GET["id"];
 
 // Get the data for the selected product from the database
-$sql = "SELECT * FROM products WHERE product_id='$product_id'";
-$result = mysqli_query($mysqli, $sql);
-$row = mysqli_fetch_assoc($result);
+$query_get_id = show('products', where: ['product_id' => $product_id]);
+
 
 $query_category = "SELECT * FROM product_categories";
 $query_category_result = mysqli_query($mysqli, $query_category);
@@ -100,9 +100,9 @@ $query_category_result = mysqli_query($mysqli, $query_category);
                 </div>
                 <div class="card-body">
                   <div class="form-group">
-                    <input type="hidden" name="product_id" value="<?php echo $row['product_id']; ?>">
+                    <input type="hidden" name="product_id" value="<?php echo $query_get_id[0]['product_id']; ?>">
                     <label for="product_name">Product Name:</label>
-                    <input class="form-control" type="text" name="product_name" value="<?php echo $row['product_name']; ?>">
+                    <input class="form-control" type="text" name="product_name" value="<?php echo $query_get_id[0]['product_name']; ?>">
                   </div>
                   <div class="form-group">
                     <label for="category_id">Category</label>
@@ -110,7 +110,7 @@ $query_category_result = mysqli_query($mysqli, $query_category);
                       <?php
                       if (mysqli_num_rows($query_category_result) > 0) {
                         while ($category = mysqli_fetch_array($query_category_result)) {
-                          if ($category['id'] == $row['category_id']) {
+                          if ($category['id'] == $query_get_id[0]['category_id']) {
                             echo "<option  value='" . $category['id'] . "' selected>" . $category['category_name'] . "</option>";
                           } else {
                             echo "<option  value='" . $category['id'] . "'>" . $category['category_name'] . "</option>";
@@ -122,15 +122,15 @@ $query_category_result = mysqli_query($mysqli, $query_category);
                   </div>
                   <div class="form-group">
                     <label for="product_code">Code:</label>
-                    <input class="form-control" type="text" name="product_code" value="<?php echo $row['product_code']; ?>">
+                    <input class="form-control" type="text" name="product_code" value="<?php echo $query_get_id[0]['product_code']; ?>">
                   </div>
                   <div class="form-group">
                     <label for="description">Description:</label>
-                    <input class="form-control" type="text" name="description" value="<?php echo $row['description']; ?>">
+                    <input class="form-control" type="text" name="description" value="<?php echo $query_get_id[0]['description']; ?>">
                   </div>
                   <div class="form-group">
                     <label for="price">Price:</label>
-                    <input class="form-control" type="text" name="price" value="<?php echo $row['price']; ?>">
+                    <input class="form-control" type="text" name="price" value="<?php echo $query_get_id[0]['price']; ?>">
                   </div>
                 </div>
                 <!-- /.card-body -->
@@ -151,15 +151,16 @@ $query_category_result = mysqli_query($mysqli, $query_category);
                 <div class="card-body">
                   <div class="form-group">
                     <label for="unit">Unit:</label>
-                    <input class="form-control" type="text" name="unit" value="<?php echo $row['unit']; ?>">
+                    <input class="form-control" type="text" name="unit" value="<?php echo $query_get_id[0]['unit']; ?>">
                   </div>
                   <div class="form-group">
                     <label for="stock">Stock:</label>
-                    <input class="form-control" type="text" name="stock" value="<?php echo $row['stock']; ?>">
+                    <input class="form-control" type="text" name="stock" value="<?php echo $query_get_id[0]['stock']; ?>">
                   </div>
                   <div class="form-group">
                     <label for="image">Image:</label>
-                    <input class="form-control" type="text" name="image" value="<?php echo $row['image']; ?>">
+                    <input class="form-control" type="file" name="upload[]" multiple="multiple">
+                    <input class="form-control" type="text" name="image" value="<?php echo $query_get_id[0]['image']; ?>">
                   </div>
                   <div class="form-group">
                     <input class="form-control btn btn-success" name="update" type="submit" value="Update">

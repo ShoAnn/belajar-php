@@ -8,6 +8,7 @@ if (!isset($_SESSION["username"])) {
 require_once "../../dbconfig.php";
 
 if (isset($_POST['add'])) {
+  require_once "../../Product.php";
   // Get the form data
   $product_name = $_POST["product_name"];
   $category_id = $_POST["category_id"];
@@ -16,43 +17,14 @@ if (isset($_POST['add'])) {
   $price = $_POST["price"];
   $unit = $_POST["unit"];
   $stock = $_POST["stock"];
+  $image = $_FILES['upload'];
 
-  // Get the uploaded file details
-  // Check if files were uploaded
-  $filePaths = [];
-  if (!empty($_FILES['upload']['name'][0])) {
-    $uploadDir = "../../uploads/"; // Directory to store uploaded files
-
-    if (!file_exists($uploadDir)) {
-      mkdir($uploadDir, 0777, true);
-    }
-
-    // Loop through the uploaded files
-    foreach ($_FILES['upload']['name'] as $key => $filename) {
-      $tempFile = $_FILES['upload']['tmp_name'][$key];
-      $targetFile = $uploadDir . basename($filename);
-
-      // Move the uploaded file to the desired directory
-      if (move_uploaded_file($tempFile, $targetFile)) {
-        $filePaths[] = $targetFile;
-      } else {
-        echo "Error uploading file " . $filename;
-      }
-    }
-  }
-
-  // Convert the file paths to JSON
-  $jsonFilePaths = json_encode($filePaths);
-  var_dump($jsonFilePaths);
-
-  // Store the JSON data in the database
-  $sql = "INSERT INTO products (product_name, category_id, product_code, description, price, unit, stock, image) VALUES ('$product_name', '$category_id', '$code', '$description', '$price', '$unit', '$stock', '$jsonFilePaths')";
-  $result_image = mysqli_query($mysqli, $sql);
-
-  if ($result_image) {
-    echo "Files uploaded and paths saved to the database.";
+  $product = new Product;
+  $result = $product->addProduct($product_name, $category_id, $code, $description, $price, $unit, $stock, $image);
+  if ($result) {
+    echo "<div class='alert alert-primary'>Product added successfully!</div>";
   } else {
-    echo "Error: " . $mysqli->error;
+    echo "Product failed to add. Please try again.";
   }
 }
 

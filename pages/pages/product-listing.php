@@ -6,10 +6,7 @@ if (!isset($_SESSION["username"])) {
 }
 
 require_once "../../dbconfig.php";
-
-
-
-
+require "../../Product.php";
 
 ?>
 
@@ -100,46 +97,41 @@ require_once "../../dbconfig.php";
               <tbody class="listprod">
                 <?php
 
-                $query_total_record = "SELECT * FROM products";
-                $result = mysqli_query($mysqli, $query_total_record);
-
                 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
                 $rowPerPage = 5;
                 $startIndex = ($page - 1) * $rowPerPage;
-                $query_limited = "SELECT * FROM products LIMIT $startIndex, $rowPerPage";
-                $result_limited = mysqli_query($mysqli, $query_limited);
-                $i = 1;
-                if (mysqli_num_rows($result_limited) > 0) {
-                  while ($row = mysqli_fetch_array($result_limited)) {
+                $listing = show('products', $rowPerPage, $startIndex);
+                if (!empty($listing)) {
+                  foreach ($listing as $key => $value) {
                     echo "<tr>";
-                    echo "<td>" . $i . "</td>";
-                    echo "<td>" . $row['product_id'] . "</td>";
-                    echo "<td>" . $row['product_name'] . "</td>";
-                    echo "<td>" . $row['category_id'] . "</td>";
-                    echo "<td>" . $row['product_code'] . "</td>";
-                    echo "<td>" . $row['description'] . "</td>";
-                    echo "<td>" . $row['price'] . "</td>";
-                    echo "<td>" . $row['unit'] . "</td>";
-                    echo "<td>" . $row['stock'] . "</td>";
+                    echo "<td>" . $key . "</td>";
+                    echo "<td>" . $value['product_id'] . "</td>";
+                    echo "<td>" . $value['product_name'] . "</td>";
+                    echo "<td>" . $value['category_id'] . "</td>";
+                    echo "<td>" . $value['product_code'] . "</td>";
+                    echo "<td>" . $value['description'] . "</td>";
+                    echo "<td>" . $value['price'] . "</td>";
+                    echo "<td>" . $value['unit'] . "</td>";
+                    echo "<td>" . $value['stock'] . "</td>";
                     echo "<td>";
-                    $all_img_path = str_replace(array('[', ']', '"'), '', $row['image']);
-                    $img_paths = explode(",", $all_img_path);
-                    if (is_array($img_paths)) {
-                      foreach ($img_paths as $img_path) {
-                        echo "<img class='img-thumbnail' src='" . $img_path . "' alt=''>";
+                    $path = $value['image'] ?? '';
+                    if (strpos($path, ',') !== false) {
+                      $all_img_path = str_replace(array('[', ']', '"'), '', $path);
+                      $img_paths = explode(",", $all_img_path);
+                      foreach ($img_paths as $img) {
+                        echo "<img class='img-thumbnail' src='" . $img . "' alt=''>";
                       };
+                    } else {
+                      echo $path;
                     };
                     echo "</td>";
                     echo "<td>";
-                    echo "<a href='product-edit.php?id=" . $row['product_id'] . "' title='Update Record' data-toggle='tooltip'><span class='fas fa-edit p-2'></span></a>";
-                    echo "<a href='javascript:void(0);' onclick='confirmDelete(" . $row['product_id'] . ")' title='Delete Record' data-toggle='tooltip'><span class='fas fa-trash p-2'></span></a>";
+                    echo "<a href='product-edit.php?id=" . $value['product_id'] . "' title='Update Record' data-toggle='tooltip'><span class='fas fa-edit p-2'></span></a>";
+                    echo "<a href='javascript:void(0);' onclick='confirmDelete(" . $value['product_id'] . ")' title='Delete Record' data-toggle='tooltip'><span class='fas fa-trash p-2'></span></a>";
                     echo "</td>";
                     echo "</tr>";
-                    $i++;
                   }
                   echo "</table>";
-                  // Free result set
-                  mysqli_free_result($result);
                 } else {
                   echo "<p class='lead'><em>No records were found.</em></p>";
                 }
@@ -151,9 +143,8 @@ require_once "../../dbconfig.php";
               <ol class="pagination">
 
                 <?php
-                $query_total_record = "SELECT * FROM products";
-                $result = mysqli_query($mysqli, $query_total_record);
-                $total_records = mysqli_num_rows($result);
+                $query_all = show('products');
+                $total_records = count($query_all);
                 $total_pages = ceil($total_records / $rowPerPage);
                 for ($i = 1; $i <= $total_pages; $i++) {
                   echo "<li class='page-item'><a class='page-link' href='product-listing.php?page=" . $i . "'>" . $i . "</a></li>";
@@ -188,18 +179,18 @@ require_once "../../dbconfig.php";
                       </tr>
                     </thead>
                     <?php
-                    $query_view_sports = "SELECT * FROM category_sports";
-                    $result_sports = mysqli_query($mysqli, $query_view_sports);
-                    if (mysqli_num_rows($result_sports) > 0) {
-                      while ($row_sports = mysqli_fetch_array($result_sports)) {
+                    $query_view_sports = show('category_sports');
+
+                    if (count($query_view_sports) > 0) {
+                      foreach ($query_view_sports as $value) {
                         echo "<tr>";
-                        echo "<td>" . $row_sports['product_id'] . "</td>";
-                        echo "<td>" . $row_sports['product_name'] . "</td>";
+                        echo "<td>" . $value['product_id'] . "</td>";
+                        echo "<td>" . $value['product_name'] . "</td>";
                         echo "</tr>";
                       };
                       echo "<tr>";
                       echo "<td><strong>Total</strong></td>";
-                      echo "<td>" . mysqli_num_rows($result_sports) . "</td>";
+                      echo "<td>" . count($query_view_sports) . "</td>";
                       echo "</tr>";
                     };
                     ?>
@@ -219,18 +210,18 @@ require_once "../../dbconfig.php";
                       </tr>
                     </thead>
                     <?php
-                    $query_view_daily = "SELECT * FROM category_daily";
-                    $result_daily = mysqli_query($mysqli, $query_view_daily);
-                    if (mysqli_num_rows($result_daily) > 0) {
-                      while ($row_sports = mysqli_fetch_array($result_daily)) {
+                    $query_view_daily = show('category_daily');
+
+                    if (count($query_view_daily) > 0) {
+                      foreach ($query_view_daily as $value) {
                         echo "<tr>";
-                        echo "<td>" . $row_sports['product_id'] . "</td>";
-                        echo "<td>" . $row_sports['product_name'] . "</td>";
+                        echo "<td>" . $value['product_id'] . "</td>";
+                        echo "<td>" . $value['product_name'] . "</td>";
                         echo "</tr>";
                       };
                       echo "<tr>";
                       echo "<td><strong>Total</strong></td>";
-                      echo "<td>" . mysqli_num_rows($result_daily) . "</td>";
+                      echo "<td>" . count($query_view_daily) . "</td>";
                       echo "</tr>";
                     };
                     ?>
@@ -250,18 +241,18 @@ require_once "../../dbconfig.php";
                       </tr>
                     </thead>
                     <?php
-                    $query_view_accessories = "SELECT * FROM category_accessories";
-                    $result_accessories = mysqli_query($mysqli, $query_view_accessories);
-                    if (mysqli_num_rows($result_accessories) > 0) {
-                      while ($row_sports = mysqli_fetch_array($result_accessories)) {
+                    $query_view_accessories = show('category_accessories');
+
+                    if (count($query_view_accessories) > 0) {
+                      foreach ($query_view_accessories as $value) {
                         echo "<tr>";
-                        echo "<td>" . $row_sports['product_id'] . "</td>";
-                        echo "<td>" . $row_sports['product_name'] . "</td>";
+                        echo "<td>" . $value['product_id'] . "</td>";
+                        echo "<td>" . $value['product_name'] . "</td>";
                         echo "</tr>";
                       };
                       echo "<tr>";
                       echo "<td><strong>Total</strong></td>";
-                      echo "<td>" . mysqli_num_rows($result_accessories) . "</td>";
+                      echo "<td>" . count($query_view_accessories) . "</td>";
                       echo "</tr>";
                     };
                     ?>
