@@ -67,10 +67,13 @@ class Product
     }
 }
 
-function show($table, $numData = null, $startIndex = null, $where = null)
+function select($table, $col = null, $numData = null, $startIndex = null, $where = null)
 {
     require "dbconfig.php";
     $query = "SELECT * FROM $table";
+    if ($col !== null) {
+        $query = "SELECT $col FROM $table";
+    }
     if ($where !== null) {
         foreach ($where as $key => $value) {
             $query .= " WHERE $key=$value";
@@ -95,5 +98,23 @@ function show($table, $numData = null, $startIndex = null, $where = null)
     } else {
         $mysqli->close();
         return [];
+    }
+}
+
+
+// image add and delete
+function addImage($id)
+{
+}
+
+
+if (isset($_GET['action'])) {
+    $action = $_GET['action'];
+
+    if ($action === 'deleteImage') {
+        // Call the addImage function
+        addImage();
+    } else {
+        echo json_encode(['error' => 'Invalid action']);
     }
 }

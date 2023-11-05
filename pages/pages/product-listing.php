@@ -75,7 +75,6 @@ require "../../Product.php";
             <table class="table table-striped projects">
               <thead>
                 <tr>
-                  <th>#</th>
                   <th>Product id</th>
                   <th>Product Name</th>
                   <th>Category id</th>
@@ -100,11 +99,10 @@ require "../../Product.php";
                 $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
                 $rowPerPage = 5;
                 $startIndex = ($page - 1) * $rowPerPage;
-                $listing = show('products', $rowPerPage, $startIndex);
+                $listing = select('products', numData: $rowPerPage, startIndex: $startIndex);
                 if (!empty($listing)) {
                   foreach ($listing as $key => $value) {
                     echo "<tr>";
-                    echo "<td>" . $key . "</td>";
                     echo "<td>" . $value['product_id'] . "</td>";
                     echo "<td>" . $value['product_name'] . "</td>";
                     echo "<td>" . $value['category_id'] . "</td>";
@@ -121,9 +119,12 @@ require "../../Product.php";
                       foreach ($img_paths as $img) {
                         echo "<img class='img-thumbnail' src='" . $img . "' alt=''>";
                       };
+                    } elseif (!empty($path) && strpos($path, ',') == false) {
+                      $img_path = str_replace(array('[', ']', '"'), '', $path);
+                      echo "<img class='img-thumbnail' src='" . $img_path . "' alt=''>";
                     } else {
-                      echo $path;
-                    };
+                      echo "No image";
+                    }
                     echo "</td>";
                     echo "<td>";
                     echo "<a href='product-edit.php?id=" . $value['product_id'] . "' title='Update Record' data-toggle='tooltip'><span class='fas fa-edit p-2'></span></a>";
@@ -143,7 +144,7 @@ require "../../Product.php";
               <ol class="pagination">
 
                 <?php
-                $query_all = show('products');
+                $query_all = select('products');
                 $total_records = count($query_all);
                 $total_pages = ceil($total_records / $rowPerPage);
                 for ($i = 1; $i <= $total_pages; $i++) {
@@ -179,7 +180,7 @@ require "../../Product.php";
                       </tr>
                     </thead>
                     <?php
-                    $query_view_sports = show('category_sports');
+                    $query_view_sports = select('category_sports');
 
                     if (count($query_view_sports) > 0) {
                       foreach ($query_view_sports as $value) {
@@ -210,7 +211,7 @@ require "../../Product.php";
                       </tr>
                     </thead>
                     <?php
-                    $query_view_daily = show('category_daily');
+                    $query_view_daily = select('category_daily');
 
                     if (count($query_view_daily) > 0) {
                       foreach ($query_view_daily as $value) {
@@ -241,7 +242,7 @@ require "../../Product.php";
                       </tr>
                     </thead>
                     <?php
-                    $query_view_accessories = show('category_accessories');
+                    $query_view_accessories = select('category_accessories');
 
                     if (count($query_view_accessories) > 0) {
                       foreach ($query_view_accessories as $value) {

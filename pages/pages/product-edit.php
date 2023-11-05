@@ -34,11 +34,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $product_id = $_GET["id"];
 
 // Get the data for the selected product from the database
-$query_get_id = show('products', where: ['product_id' => $product_id]);
+$query_get_id = select('products', where: ['product_id' => $product_id]);
 
+if (isset($_POST['addImage'])) {
+}
 
-$query_category = "SELECT * FROM product_categories";
-$query_category_result = mysqli_query($mysqli, $query_category);
+$categories = select('product_categories');
 
 ?>
 
@@ -108,14 +109,14 @@ $query_category_result = mysqli_query($mysqli, $query_category);
                     <label for="category_id">Category</label>
                     <select name="category_id" class="form-control">
                       <?php
-                      if (mysqli_num_rows($query_category_result) > 0) {
-                        while ($category = mysqli_fetch_array($query_category_result)) {
-                          if ($category['id'] == $query_get_id[0]['category_id']) {
-                            echo "<option  value='" . $category['id'] . "' selected>" . $category['category_name'] . "</option>";
+                      if (is_array($categories) || is_object($categories)) {
+                        foreach ($categories as $category) {
+                          if ($category['category_id'] == $query_get_id[0]['category_id']) {
+                            echo "<option value='" . $category['category_id'] . "' selected>" . $category['category_name'] . "</option>";
                           } else {
-                            echo "<option  value='" . $category['id'] . "'>" . $category['category_name'] . "</option>";
+                            echo "<option value='" . $category['category_id'] . "'>" . $category['category_name'] . "</option>";
                           }
-                        };
+                        }
                       };
                       ?>
                     </select>
@@ -158,9 +159,9 @@ $query_category_result = mysqli_query($mysqli, $query_category);
                     <input class="form-control" type="text" name="stock" value="<?php echo $query_get_id[0]['stock']; ?>">
                   </div>
                   <div class="form-group">
-                    <label for="image">Image:</label>
-                    <input class="form-control" type="file" name="upload[]" multiple="multiple">
-                    <input class="form-control" type="text" name="image" value="<?php echo $query_get_id[0]['image']; ?>">
+                    <button type="button" class="btn btn-block btn-outline-success" data-toggle="modal" data-target="#editImage_modal">
+                      <b>Edit Product Image</b>
+                    </button>
                   </div>
                   <div class="form-group">
                     <input class="form-control btn btn-success" name="update" type="submit" value="Update">
@@ -187,14 +188,110 @@ $query_category_result = mysqli_query($mysqli, $query_category);
   </div>
   <!-- ./wrapper -->
 
+  <!--Edit Image Modal -->
+  <div class="modal fade" id="editImage_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Edit Images</h4>
+        </div>
+
+        <div class="modal-body">
+          <div class="row">
+            <?php
+            $images = select('products', col: 'image', where: ['product_id' => $product_id]);
+            if (!empty($images)) {
+              foreach ($images as $image) {
+                $path = $image['image'] ?? '';
+                if (strpos($path, ',') !== false) {
+                  $all_img_path = str_replace(array('[', ']', '"'), '', $path);
+                  $img_paths = explode(",", $all_img_path);
+                  foreach ($img_paths as $img) {
+                    echo "<img class='img-thumbnail' src='" . $img . "' alt=''>";
+                  };
+                } elseif (!empty($path) && strpos($path, ',') == false) {
+                  $img_path = str_replace(array('[', ']', '"'), '', $path);
+                  echo "<img class='img-thumbnail' src='" . $img_path . "' alt=''>";
+                } else {
+                  echo " <span class='col mb-3 text-center'>No image</span>";
+                }
+
+                // echo "<div class='col-md-3'>";
+                // echo "<img src='../../" . $image['image'] . "' class='img-fluid mb-2' alt='white sample'/>";
+                // echo "<button type='button' class='btn btn-block btn-outline-danger' onclick='deleteImage(" . $image['image_id'] . ")'>Delete</button>";
+                // echo "</div>";
+              }
+            }
+            ?>
+            <form action="" method="POST">
+              <div class="form-group">
+                <label for="image" class="form-label">Add Image</label>
+                <input type="file" class="form-control" name="image" id="image" multiple>
+              </div>
+              <button type="submit" name="addImage" class="add-image-btn btn btn-primary form-control"><i class="fas fa-plus"></i> Upload</button>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-success" data-dismiss="modal">Selesai</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- end modal -->
+
+  <!-- script edit images -->
+  <script>
+    // addData function in the PHP file
+    const addBtn = document.querySelector('.add-image-btn');
+    const searchParams = new URLSearchParams(window.location.search);
+    const idProduct = searchParams.get('id');
+    console.log(idProduct);
+    addBtn.addEventListener('click', addImage(idProduct));
+
+    function addImage(id) {
+      fetch('../../Product.php?action=addImage', {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response
+        });
+    }
+
+    // Function to delete data
+    function deleteImage(id) {
+      fetch('../../Product.php?action=deleteImage', {
+          method: 'POST',
+          body: JSON.stringify({
+            id: id
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Update the UI to remove the deleted data
+          // Example: remove the item from a list
+        });
+    }
+  </script>
   <!-- jQuery -->
-  <script src="../../plugins/jquery/jquery.min.js"></script>
+  <script src="../plugins/jquery/jquery.min.js"></script>
   <!-- Bootstrap 4 -->
-  <script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
   <!-- AdminLTE App -->
-  <script src="../../dist/js/adminlte.min.js"></script>
+  <script src="../dist/js/adminlte.min.js"></script>
   <!-- AdminLTE for demo purposes -->
   <script src="../../dist/js/demo.js"></script>
+
 </body>
 
 </html>
