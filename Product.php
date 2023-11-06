@@ -1,6 +1,5 @@
 <?php
 
-use LDAP\Result;
 
 class Product
 {
@@ -65,6 +64,92 @@ class Product
             return false;
         }
     }
+
+    public function updateProduct($id, $productName, $categoryId, $code, $description, $price, $unit, $stock)
+    {
+        $this->productId = $id;
+        $this->productName = $productName;
+        $this->categoryId = $categoryId;
+        $this->code = $code;
+        $this->description = $description;
+        $this->price = $price;
+        $this->unit = $unit;
+        $this->stock = $stock;
+
+        // Store the JSON data in the database
+        require "dbconfig.php";
+
+        $stmt = $mysqli->prepare("UPDATE products SET product_name=?, category_id=?, product_code=?, description=?, price=?, unit=?, stock=?, image=? WHERE id=?");
+        $stmt->bind_param("sissisii", $this->productName, $this->categoryId, $this->code, $this->description, $this->price, $this->unit, $this->stock, $this->productId);
+        if ($stmt->execute()) {
+            $stmt->close();
+            $mysqli->close();
+            return true;
+        } else {
+            $stmt->close();
+            $mysqli->close();
+            return false;
+        }
+    }
+
+    public function updateImage($id, $image)
+    {
+        $this->productId = $id;
+        $this->image = $image;
+
+        $filePaths = [];
+        if (!empty($this->image['name'][0])) {
+            $uploadDir = "uploads/"; // Directory to store uploaded files
+
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            // Loop through the uploaded files
+            foreach ($this->image['name'] as $key => $filename) {
+                $tempFile = $this->image['tmp_name'][$key];
+                $targetFile = $uploadDir . basename($filename);
+
+                // Move the uploaded file to the desired directory
+                if (move_uploaded_file($tempFile, $targetFile)) {
+                    $filePaths[] = $targetFile;
+                } else {
+                    echo "Error uploading file " . $filename;
+                }
+            }
+        }
+
+        require "dbconfig.php";
+        // get current images data
+        $select_stmt = $mysqli->prepare("SELECT image FROM products WHERE product_id=?");
+        $select_stmt->bind_param("i", $this->productId);
+        $select_stmt->execute();
+        $result = $select_stmt->get_result();
+        $row = $result->fetch_assoc();
+        $currentJsonFilePaths = $row['image'];
+        $select_stmt->close();
+
+        $currentFilePaths = json_decode($currentJsonFilePaths);
+        if ($currentFilePaths !== null) {
+            $newImagesPath = array_merge($currentFilePaths, $filePaths);
+        } else {
+            $newImagesPath = $filePaths;
+        }
+
+        $newJsonImagesPaths = json_encode($newImagesPath);
+        // Store the JSON data in the database
+        $stmt = $mysqli->prepare("UPDATE products SET image=? WHERE product_id=?");
+        $stmt->bind_param("si", $newJsonImagesPaths, $this->productId);
+        if ($stmt->execute()) {
+            $stmt->close();
+            $mysqli->close();
+            return true;
+        } else {
+            $stmt->close();
+            $mysqli->close();
+            return false;
+        }
+    }
 }
 
 function select($table, $col = null, $numData = null, $startIndex = null, $where = null)
@@ -102,19 +187,33 @@ function select($table, $col = null, $numData = null, $startIndex = null, $where
 }
 
 
-// image add and delete
-function addImage($id)
+// image delete
+function deleteImage($id, $img)
 {
-}
-
-
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
-
-    if ($action === 'deleteImage') {
-        // Call the addImage function
-        addImage();
+    require "dbconfig.php";
+    // get current images data
+    $currentImages = select("products", "image", null, null, ["id" => $id]);
+    $currentImages = json_decode($currentImages[0]['image']);
+    if ($currentImages !== null) {
+        foreach ($currentImages as $key => $value) {
+            if ($value === $img) {
+                unset($currentImages[$key]);
+            }
+        }
+    }
+    $newJsonImagesPaths = json_encode($currentImages);
+    // Store the JSON data in the database
+    $stmt = $mysqli->prepare("UPDATE products SET image=? WHERE id=?");
+    $stmt->bind_param("si", $newJsonImagesPaths, $id);
+    if ($stmt->execute()) {
+        $stmt->close();
+        $mysqli->close();
+        return true;
     } else {
-        echo json_encode(['error' => 'Invalid action']);
+        $stmt->close();
+        $mysqli->close();
+        return false;
     }
 }
+
+

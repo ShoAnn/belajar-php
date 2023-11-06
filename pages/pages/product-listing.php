@@ -112,18 +112,13 @@ require "../../Product.php";
                     echo "<td>" . $value['unit'] . "</td>";
                     echo "<td>" . $value['stock'] . "</td>";
                     echo "<td>";
-                    $path = $value['image'] ?? '';
-                    if (strpos($path, ',') !== false) {
-                      $all_img_path = str_replace(array('[', ']', '"'), '', $path);
-                      $img_paths = explode(",", $all_img_path);
-                      foreach ($img_paths as $img) {
+                    if (!empty($value['image'])) {
+                      $path = json_decode($value['image']);
+                      foreach ($path as $img) {
                         echo "<img class='img-thumbnail' src='" . $img . "' alt=''>";
                       };
-                    } elseif (!empty($path) && strpos($path, ',') == false) {
-                      $img_path = str_replace(array('[', ']', '"'), '', $path);
-                      echo "<img class='img-thumbnail' src='" . $img_path . "' alt=''>";
                     } else {
-                      echo "No image";
+                      echo "No Image";
                     }
                     echo "</td>";
                     echo "<td>";

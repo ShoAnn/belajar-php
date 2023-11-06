@@ -5,11 +5,25 @@ if (!isset($_SESSION["username"])) {
   header("Location: login.php");
 }
 
+
 require_once "../../dbconfig.php";
 require "../../Product.php";
 
-// Check if the form has been submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+if (isset($_POST['addImage'])) {
+  $product_id = $_GET['id'];
+  $img = $_FILES["images"];
+
+  $product = new Product;
+  $updateImageResult = $product->updateImage($product_id, $img);
+  if ($updateImageResult) {
+    echo "<div class='alert alert-primary'>Image added successfully!</div>";
+  } else {
+    echo "Image failed to add. Please try again.";
+  }
+}
+
+if (isset($_POST['update'])) {
   // Get the form data
   $product_id = $_POST["product_id"];
   $product_name = $_POST["product_name"];
@@ -19,10 +33,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $price = $_POST["price"];
   $unit = $_POST["unit"];
   $stock = $_POST["stock"];
-  $image = $_POST["image"];
 
   // Update the data in the database
-  $sql = "UPDATE products SET product_name='$product_name', category_id='$category_id', product_code='$code', description='$description', price='$price', unit='$unit', stock='$stock', image='$image' WHERE product_id='$product_id'";
+  $sql = "UPDATE products SET product_name='$product_name', category_id='$category_id', product_code='$code', description='$description', price='$price', unit='$unit', stock='$stock', WHERE product_id='$product_id'";
   if (mysqli_query($mysqli, $sql)) {
     header("Location: product-listing.php");
   } else {
@@ -36,8 +49,6 @@ $product_id = $_GET["id"];
 // Get the data for the selected product from the database
 $query_get_id = select('products', where: ['product_id' => $product_id]);
 
-if (isset($_POST['addImage'])) {
-}
 
 $categories = select('product_categories');
 
@@ -93,11 +104,6 @@ $categories = select('product_categories');
                 <div class="card-header">
                   <h3 class="card-title">Informasi Produk</h3>
 
-                  <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                      <i class="fas fa-minus"></i>
-                    </button>
-                  </div>
                 </div>
                 <div class="card-body">
                   <div class="form-group">
@@ -143,11 +149,6 @@ $categories = select('product_categories');
               <div class="card">
                 <div class="card-header">
 
-                  <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                      <i class="fas fa-minus"></i>
-                    </button>
-                  </div>
                 </div>
                 <div class="card-body">
                   <div class="form-group">
@@ -158,10 +159,34 @@ $categories = select('product_categories');
                     <label for="stock">Stock:</label>
                     <input class="form-control" type="text" name="stock" value="<?php echo $query_get_id[0]['stock']; ?>">
                   </div>
-                  <div class="form-group">
-                    <button type="button" class="btn btn-block btn-outline-success" data-toggle="modal" data-target="#editImage_modal">
-                      <b>Edit Product Image</b>
-                    </button>
+                  <div class="card">
+                    <div class="card-header"><b>Image</b></div>
+                    <div class="card-body row">
+                      <?php
+                      $images = select('products', col: 'image', where: ['product_id' => $product_id]);
+                      if (!empty($images)) {
+                        foreach ($images as $image) {
+                          $path = json_decode($image['image']);
+                          if (!empty($path)) {
+                            foreach ($path as $img) {
+                              echo "<div class='col-md-2 p-1'>";
+                              echo "<img src='" . $img . "' class='img-fluid img-thumbnail' alt='sample'/>";
+                              echo "</div>";
+                            }
+                          } else {
+                            echo '<span >No Image</span>';
+                          }
+                        }
+                      } else {
+                        echo '<span >No Image</span>';
+                      }
+                      ?>
+                    </div>
+                    <div class="card-footer pt-0">
+                      <button type="button" class="btn btn-block btn-outline-dark" data-toggle="modal" data-target="#editImage_modal">
+                        <b>Tambah/Hapus Image</b>
+                      </button>
+                    </div>
                   </div>
                   <div class="form-group">
                     <input class="form-control btn btn-success" name="update" type="submit" value="Update">
@@ -190,45 +215,43 @@ $categories = select('product_categories');
 
   <!--Edit Image Modal -->
   <div class="modal fade" id="editImage_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">Edit Images</h4>
         </div>
 
-        <div class="modal-body">
-          <div class="row">
+        <div class="modal-body overflow-auto">
+          <div class="row img_listing">
             <?php
             $images = select('products', col: 'image', where: ['product_id' => $product_id]);
             if (!empty($images)) {
               foreach ($images as $image) {
-                $path = $image['image'] ?? '';
-                if (strpos($path, ',') !== false) {
-                  $all_img_path = str_replace(array('[', ']', '"'), '', $path);
-                  $img_paths = explode(",", $all_img_path);
-                  foreach ($img_paths as $img) {
-                    echo "<img class='img-thumbnail' src='" . $img . "' alt=''>";
-                  };
-                } elseif (!empty($path) && strpos($path, ',') == false) {
-                  $img_path = str_replace(array('[', ']', '"'), '', $path);
-                  echo "<img class='img-thumbnail' src='" . $img_path . "' alt=''>";
+                $path = json_decode($image['image']);
+                if (!empty($path)) {
+                  foreach ($path as $img) {
+                    echo "<div class='col-md-2 p-1'>";
+                    echo "<img src='" . $img . "' class='img-fluid img-thumbnail h-75' style='object-fit: cover;' alt='image'/>";
+                    echo "<a href='javascript:void(0);' class='btn btn-block btn-outline-danger' onclick='deleteImage(" . $product_id . ", " . htmlspecialchars(json_encode($img), ENT_QUOTES, 'UTF-8') . ")'>Delete</a>";
+                    echo "</div>";
+                  }
                 } else {
-                  echo " <span class='col mb-3 text-center'>No image</span>";
+                  echo '<span class="w-100 text-center py-3">No Image</span>';
                 }
-
-                // echo "<div class='col-md-3'>";
-                // echo "<img src='../../" . $image['image'] . "' class='img-fluid mb-2' alt='white sample'/>";
-                // echo "<button type='button' class='btn btn-block btn-outline-danger' onclick='deleteImage(" . $image['image_id'] . ")'>Delete</button>";
-                // echo "</div>";
               }
+            } else {
+              echo '<span class="w-100 text-center">No Image</span>';
             }
             ?>
-            <form action="" method="POST">
-              <div class="form-group">
-                <label for="image" class="form-label">Add Image</label>
-                <input type="file" class="form-control" name="image" id="image" multiple>
+          </div>
+          <div class="col-md-8 mx-auto py-2">
+            <hr>
+            <form action="" method="POST" enctype="multipart/form-data">
+              <div class="form-group row align-items-center">
+                <label class="form-label col-4" for="image">Tambah gambar</label>
+                <input type="file" class="form-control col-5" name="images[]" multiple="multiple">
+                <input class="form-control btn btn-success col-3" name="addImage" type="submit" value="Tambah image">
               </div>
-              <button type="submit" name="addImage" class="add-image-btn btn btn-primary form-control"><i class="fas fa-plus"></i> Upload</button>
             </form>
           </div>
         </div>
@@ -244,33 +267,13 @@ $categories = select('product_categories');
 
   <!-- script edit images -->
   <script>
-    // addData function in the PHP file
-    const addBtn = document.querySelector('.add-image-btn');
-    const searchParams = new URLSearchParams(window.location.search);
-    const idProduct = searchParams.get('id');
-    console.log(idProduct);
-    addBtn.addEventListener('click', addImage(idProduct));
-
-    function addImage(id) {
-      fetch('../../Product.php?action=addImage', {
-          method: 'POST',
-          body: JSON.stringify(data),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        .then(response => response.json())
-        .then(data => {
-          // Handle the response
-        });
-    }
-
     // Function to delete data
-    function deleteImage(id) {
-      fetch('../../Product.php?action=deleteImage', {
+    function deleteImage(id, img) {
+      fetch('delete-img.php', {
           method: 'POST',
           body: JSON.stringify({
-            id: id
+            id: id,
+            img: img
           }),
           headers: {
             'Content-Type': 'application/json',
@@ -280,6 +283,8 @@ $categories = select('product_categories');
         .then(data => {
           // Update the UI to remove the deleted data
           // Example: remove the item from a list
+          const imgListing = document.querySelector('.img_listing');
+          console.log(data);
         });
     }
   </script>
